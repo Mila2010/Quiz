@@ -68,4 +68,10 @@
             android:text="@string/next_button" />
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/cheatButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cheat"/>
 </LinearLayout>

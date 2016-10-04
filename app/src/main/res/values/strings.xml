@@ -13,6 +13,7 @@
     <string name="question_private_class">A private member is only accessible within the same class as it is declared</string>
     <string name="question_method">A single method call can return multiple types in Java</string>
     <string name="question_method_2">Calling a method is the same as defining it</string>
+
     <string name="save_score">Save Score</string>
     <string name="enter_name">Enter your name below to start taking the quiz</string>
     <string name="name">Name</string>

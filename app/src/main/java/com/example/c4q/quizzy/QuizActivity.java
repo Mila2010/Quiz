@@ -1,7 +1,8 @@
 package com.example.c4q.quizzy;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,14 +10,22 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class QuizActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final int QUIEZ_ACTIVITY = 111;
     private Button trueButton;
     private Button falseButton;
     private Button nextButton;
     private Button prevButton;
     private TextView quizTakerName;
     private TextView questionTextView;
+    private Button cheatButton;
+    private  int score=0;
+
+    private static Map<String,Integer> scoreArray= new HashMap<>();
 
     private Question[] questionBank;
     private int currentIndex = 0;
@@ -39,6 +48,11 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         initializeViews(); //find view by id methods
         initializeQuestions(); // loads Question objects into array of questions called questionBank
         initializeListeners(); //sets onClickListeners for buttton views.
+
+        //quizTakerName = (TextView) findViewById(R.id.quizzer_name);
+        //quizTakerName.setText(getIntent().getExtras().getString(EXTRA_MESSAGE));
+
+
     }
 
 
@@ -49,6 +63,8 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         nextButton = (Button) findViewById(R.id.next_btn);
         prevButton = (Button)findViewById(R.id.prev_btn);
         quizTakerName = (TextView) findViewById(R.id.quizzer_name);
+        cheatButton=(Button)findViewById(R.id.cheatButton);
+
         resetButtonColors();
     }
 
@@ -58,6 +74,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         falseButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
         prevButton.setOnClickListener(this);
+        cheatButton.setOnClickListener(this);
     }
 
 
@@ -78,11 +95,20 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         //fixme - implement restartQuiz and add a way to save the quiz taker's score
         switch(item.getItemId()) {
             case R.id.restart_quiz_action:
+                restartQuiz();
+                score=0;
+
+
+                break;
+
             case R.id.save_score:
-                Toast.makeText(this, "No implementation found. Implement the restartQuiz method", Toast.LENGTH_LONG).show();
+                scoreArray.put(quizTakerName.getText().toString(),score);
+                Toast.makeText(this, "Your score is: " + score, Toast.LENGTH_SHORT).show();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
+
 
 
     public void updateQuestion() {
@@ -99,7 +125,14 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     //fixme
     public void restartQuiz() {
-        Toast.makeText(this, "No implementation found. Implement the restartQuiz method", Toast.LENGTH_LONG).show();
+
+        resetButtonColors();
+        currentIndex = 0;
+        updateQuestion();
+
+
+
+        //Toast.makeText(this, "No implementation found. Implement the restartQuiz method", Toast.LENGTH_LONG).show();
     }
 
     public Question getCurrentQuestion() {
@@ -113,15 +146,43 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         resetButtonColors();
         switch (v.getId()) {
             case R.id.true_btn:
-            case R.id.false_btn:
                 Question question = getCurrentQuestion();
                 if (question.isAnswerTrue()) {
                     falseButton.setBackgroundResource(R.color.red);
                     trueButton.setBackgroundResource(R.color.green);
+                    score ++;
+                    Toast.makeText(this, "Your score is: " + score, Toast.LENGTH_SHORT).show();
+
                 } else {
                     falseButton.setBackgroundResource(R.color.green);
                     trueButton.setBackgroundResource(R.color.red);
+                    Toast.makeText(this, "Your score is: " + score, Toast.LENGTH_SHORT).show();
                 }
+            case R.id.false_btn:
+                Question question1 = getCurrentQuestion();
+                if (question1.isAnswerTrue()) {
+                    falseButton.setBackgroundResource(R.color.red);
+                    trueButton.setBackgroundResource(R.color.green);
+                    Toast.makeText(this, "Your score is: " + score, Toast.LENGTH_SHORT).show();
+
+
+                } else {
+                    falseButton.setBackgroundResource(R.color.green);
+                    trueButton.setBackgroundResource(R.color.red);
+                    score ++;
+                    Toast.makeText(this, "Your score is: " + score, Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case R.id.cheatButton:
+                Toast.makeText(this, "Showing cheat mode", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, CheatActivity.class);
+                Question currentQuestion = questionBank[currentIndex];
+                String questionStr = getResources().getString(currentQuestion.getTextResId());
+                intent.putExtra("CURRENT QUESTION",questionStr);
+                boolean answer = currentQuestion.isAnswerTrue();
+                intent.putExtra("CURRENT INDEX",currentIndex);
+                intent.putExtra("CURRENT ANSWER",answer);
+                startActivityForResult(intent, QUIEZ_ACTIVITY);
                 break;
             case R.id.prev_btn:
                 currentIndex--;
@@ -133,4 +194,16 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode,resultCode,data);
+        if(requestCode== QUIEZ_ACTIVITY){
+            Toast.makeText(this, "You've Cheated", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Your result code was " + requestCode, Toast.LENGTH_SHORT).show();
+
+        }
+
+    }
+
 }
